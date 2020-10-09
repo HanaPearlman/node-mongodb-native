@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const { Writable } = require('stream');
 const { ReadPreference } = require('../../src/read_preference');
 const { ServerType } = require('../../src/sdam/common');
-const { SortDigest } = require('../../src/sort');
+const { formatSort } = require('../../src/sort');
 
 describe('Cursor', function () {
   before(function () {
@@ -4347,20 +4347,20 @@ describe('Cursor', function () {
     it('should use cursor.sort shallow array', cursorSort(['alpha', 1], { alpha: 1 }));
     it('should use cursor.sort deep array', cursorSort([['alpha', 1]], { alpha: 1 }));
 
-    it('SortDigest.prepare', () => {
-      expect(SortDigest.prepare('alpha')).to.deep.equal({ alpha: 1 });
-      expect(SortDigest.prepare(['alpha'])).to.deep.equal({ alpha: 1 });
-      expect(SortDigest.prepare('alpha', 1)).to.deep.equal({ alpha: 1 });
-      expect(SortDigest.prepare('alpha', 'asc')).to.deep.equal({ alpha: 1 });
-      expect(SortDigest.prepare('alpha', 'ascending')).to.deep.equal({ alpha: 1 });
-      expect(SortDigest.prepare({ alpha: 1 })).to.deep.equal({ alpha: 1 });
-      expect(SortDigest.prepare('beta')).to.deep.equal({ beta: 1 });
-      expect(SortDigest.prepare(['beta'])).to.deep.equal({ beta: 1 });
-      expect(SortDigest.prepare('beta', -1)).to.deep.equal({ beta: -1 });
-      expect(SortDigest.prepare('beta', 'desc')).to.deep.equal({ beta: -1 });
-      expect(SortDigest.prepare('beta', 'descending')).to.deep.equal({ beta: -1 });
-      expect(SortDigest.prepare({ beta: -1 })).to.deep.equal({ beta: -1 });
-      expect(SortDigest.prepare({ alpha: { $meta: 'hi' } })).to.deep.equal({
+    it('formatSort', () => {
+      expect(formatSort('alpha')).to.deep.equal({ alpha: 1 });
+      expect(formatSort(['alpha'])).to.deep.equal({ alpha: 1 });
+      expect(formatSort('alpha', 1)).to.deep.equal({ alpha: 1 });
+      expect(formatSort('alpha', 'asc')).to.deep.equal({ alpha: 1 });
+      expect(formatSort('alpha', 'ascending')).to.deep.equal({ alpha: 1 });
+      expect(formatSort({ alpha: 1 })).to.deep.equal({ alpha: 1 });
+      expect(formatSort('beta')).to.deep.equal({ beta: 1 });
+      expect(formatSort(['beta'])).to.deep.equal({ beta: 1 });
+      expect(formatSort('beta', -1)).to.deep.equal({ beta: -1 });
+      expect(formatSort('beta', 'desc')).to.deep.equal({ beta: -1 });
+      expect(formatSort('beta', 'descending')).to.deep.equal({ beta: -1 });
+      expect(formatSort({ beta: -1 })).to.deep.equal({ beta: -1 });
+      expect(formatSort({ alpha: { $meta: 'hi' } })).to.deep.equal({
         alpha: { $meta: 'hi' }
       });
     });
