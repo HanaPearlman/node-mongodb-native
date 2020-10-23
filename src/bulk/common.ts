@@ -1,5 +1,5 @@
 import { PromiseProvider } from '../promise_provider';
-import { Long, ObjectId, Document, inheritBSONOptions, BSONSerializeOptions } from '../bson';
+import { Long, ObjectId, Document, resolveBSONOptions, BSONSerializeOptions } from '../bson';
 import { MongoError, MongoWriteConcernError, AnyError } from '../error';
 import {
   applyWriteConcern,
@@ -983,7 +983,7 @@ export abstract class BulkOperationBase {
       // Options
       options: finalOptions,
       // BSON options
-      bsonOptions: inheritBSONOptions(options, collection.s.options, false),
+      bsonOptions: resolveBSONOptions(options, collection),
       // Current operation
       currentOp,
       // Executed
