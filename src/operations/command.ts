@@ -1,7 +1,7 @@
 import { Aspect, OperationBase, OperationOptions } from './operation';
 import { ReadConcern } from '../read_concern';
 import { WriteConcern, WriteConcernOptions } from '../write_concern';
-import { maxWireVersion, MongoDBNamespace, Callback } from '../utils';
+import { maxWireVersion, MongoDBNamespace, Callback, decorateWithExplain } from '../utils';
 import { ReadPreference, ReadPreferenceLike } from '../read_preference';
 import { commandSupportsReadConcern } from '../sessions';
 import { MongoError } from '../error';
@@ -131,6 +131,12 @@ export abstract class CommandOperation<
 
     if (typeof options.comment === 'string') {
       cmd.comment = options.comment;
+    }
+
+    // explain inherits any comment from its command
+    if (cmd.explain) {
+      delete cmd['explain']; // todo i know this is bad
+      cmd = decorateWithExplain(cmd, options); // todo fix types so options extends explain specifically?
     }
 
     if (this.logger && this.logger.isDebug()) {

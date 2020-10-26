@@ -14,7 +14,8 @@ import {
   maxWireVersion,
   ClientMetadataOptions,
   Callback,
-  CallbackWithType
+  CallbackWithType,
+  explainNotSupported
 } from '../utils';
 import {
   ServerType,
@@ -455,6 +456,11 @@ function executeWriteOperation(
       callback(new MongoError(`servers < 3.4 do not support hint on ${op}`));
       return;
     }
+  }
+
+  if (options.explain && explainNotSupported(server, op)) {
+    callback(new MongoError(`server ${server.name} does not support explain on ${op}`));
+    return;
   }
 
   server.s.pool.withConnection((err, conn, cb) => {

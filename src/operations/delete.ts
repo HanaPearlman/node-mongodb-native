@@ -71,6 +71,10 @@ export class DeleteOneOperation extends CommandOperation<DeleteOptions, DeleteRe
     removeDocuments(server, coll, filter, options, (err, r) => {
       if (callback == null) return;
       if (err && callback) return callback(err);
+
+      // for explain, just return full server result
+      if (options.explain) return callback(undefined, r);
+
       if (r == null) {
         return callback(undefined, { acknowledged: true, deletedCount: 0, result: { ok: 1 } });
       }
@@ -109,6 +113,10 @@ export class DeleteManyOperation extends CommandOperation<DeleteOptions, DeleteR
     removeDocuments(server, coll, filter, options, (err, r) => {
       if (callback == null) return;
       if (err && callback) return callback(err);
+
+      // for explain, just return full server result
+      if (options.explain) return callback(undefined, r);
+
       if (r == null) {
         return callback(undefined, { acknowledged: true, deletedCount: 0, result: { ok: 1 } });
       }

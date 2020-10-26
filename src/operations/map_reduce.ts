@@ -5,7 +5,8 @@ import {
   decorateWithCollation,
   decorateWithReadConcern,
   isObject,
-  Callback
+  Callback,
+  explainNotSupported
 } from '../utils';
 import { ReadPreference, ReadPreferenceMode } from '../read_preference';
 import { CommandOperation, CommandOperationOptions } from './command';
@@ -149,6 +150,17 @@ export class MapReduceOperation extends CommandOperation<MapReduceOptions, Docum
       return callback(err);
     }
 
+    if (options.explain) {
+      if (explainNotSupported(server, 'mapReduce')) {
+        callback(
+          new MongoError('The current topology does not support explain on mapReduce commands')
+        );
+        return;
+      }
+
+      mapCommandHash.explain = options.explain;
+    }
+
     // Execute command
     super.executeCommand(server, mapCommandHash, (err, result) => {
       if (err) return callback(err);
@@ -156,6 +168,9 @@ export class MapReduceOperation extends CommandOperation<MapReduceOptions, Docum
       if (1 !== result.ok || result.err || result.errmsg) {
         return callback(new MongoError(result));
       }
+
+      // for explain, just return full server result
+      if (options.explain) return callback(undefined, result);
 
       // Create statistics value
       const stats: MapReduceStats = {};

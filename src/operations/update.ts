@@ -94,6 +94,9 @@ export class UpdateOneOperation extends CommandOperation<UpdateOptions, UpdateRe
     updateDocuments(server, coll, filter, update, options, (err, r) => {
       if (err || !r) return callback(err);
 
+      // for explain, just return full server result
+      if (options.explain) return callback(undefined, r);
+
       const result: UpdateResult = {
         modifiedCount: r.nModified != null ? r.nModified : r.n,
         upsertedId:
@@ -135,6 +138,9 @@ export class UpdateManyOperation extends CommandOperation<UpdateOptions, UpdateR
     // Execute update
     updateDocuments(server, coll, filter, update, options, (err, r) => {
       if (err || !r) return callback(err);
+
+      // for explain, just return full server result
+      if (options.explain) return callback(undefined, r);
 
       const result: UpdateResult = {
         modifiedCount: r.nModified != null ? r.nModified : r.n,

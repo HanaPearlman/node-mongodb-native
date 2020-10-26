@@ -1,5 +1,5 @@
 import { MongoError } from '../../error';
-import { collectionNamespace, Callback } from '../../utils';
+import { collectionNamespace, Callback, decorateWithExplain } from '../../utils';
 import { command, CommandOptions } from './command';
 import type { Server } from '../../sdam/server';
 import type { Document, BSONSerializeOptions } from '../../bson';
@@ -17,8 +17,15 @@ export interface CollationOptions {
   backwards: boolean;
 }
 
+export interface ExplainableOptions {
+  explain?: string | boolean; // todo replace with enum?
+}
+
 /** @internal */
-export interface WriteCommandOptions extends BSONSerializeOptions, CommandOptions {
+export interface WriteCommandOptions
+  extends BSONSerializeOptions,
+    CommandOptions,
+    ExplainableOptions {
   ordered?: boolean;
   writeConcern?: WriteConcern;
   collation?: CollationOptions;
@@ -43,7 +50,7 @@ export function writeCommand(
   options = options || {};
   const ordered = typeof options.ordered === 'boolean' ? options.ordered : true;
   const writeConcern = options.writeConcern;
-  const writeCommand: Document = {};
+  let writeCommand: Document = {};
   writeCommand[type] = collectionNamespace(ns);
   writeCommand[opsField] = ops;
   writeCommand.ordered = ordered;
@@ -63,6 +70,9 @@ export function writeCommand(
   if (options.bypassDocumentValidation === true) {
     writeCommand.bypassDocumentValidation = options.bypassDocumentValidation;
   }
+
+  // at this point we should know that the server can execute and explain for the specific op
+  writeCommand = decorateWithExplain(writeCommand, options);
 
   const commandOptions = Object.assign(
     {

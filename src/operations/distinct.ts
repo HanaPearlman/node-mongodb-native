@@ -1,9 +1,15 @@
 import { Aspect, defineAspects } from './operation';
 import { CommandOperation, CommandOperationOptions } from './command';
-import { decorateWithCollation, decorateWithReadConcern, Callback } from '../utils';
+import {
+  decorateWithCollation,
+  decorateWithReadConcern,
+  Callback,
+  explainNotSupported
+} from '../utils';
 import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
 import type { Collection } from '../collection';
+import { MongoError } from '../error';
 
 /** @public */
 export type DistinctOptions = CommandOperationOptions;
@@ -60,13 +66,24 @@ export class DistinctOperation extends CommandOperation<DistinctOptions, Documen
       return callback(err);
     }
 
+    if (options.explain) {
+      if (explainNotSupported(server, 'distinct')) {
+        callback(
+          new MongoError('The current topology does not support explain on distinct commands')
+        );
+        return;
+      }
+
+      cmd.explain = options.explain;
+    }
+
     super.executeCommand(server, cmd, (err, result) => {
       if (err) {
         callback(err);
         return;
       }
 
-      callback(undefined, this.options.fullResponse ? result : result.values);
+      callback(undefined, this.options.fullResponse || options.explain ? result : result.values);
     });
   }
 }

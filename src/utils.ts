@@ -16,6 +16,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import type { Document } from './bson';
 import type { IndexSpecification, IndexDirection } from './operations/indexes';
+import type { ExplainableOptions, WriteCommandOptions } from './cmap/wire_protocol/write_command';
 
 /** @public MongoDB Driver style callback */
 export type Callback<T = any> = (error?: AnyError, result?: T) => void;
@@ -458,6 +459,22 @@ export function decorateWithCollation(
   }
 }
 
+export function decorateWithExplain(command: Document, options?: ExplainableOptions): Document {
+  if (options?.explain) {
+    command = { explain: command };
+    const verbosity = options.explain;
+    if (
+      verbosity === 'queryPlanner' ||
+      verbosity === 'executionStats' ||
+      verbosity === 'allPlansExecution'
+    ) {
+      command.verbosity = verbosity;
+    }
+    // todo, add support for comment?
+  }
+  return command;
+}
+
 /**
  * Applies a read concern to a given command.
  * @internal
@@ -726,6 +743,29 @@ export function maxWireVersion(topologyOrServer?: Connection | Topology | Server
  */
 export function collationNotSupported(server: Server, cmd: Document): boolean {
   return cmd && cmd.collation && maxWireVersion(server) < 5;
+}
+
+/**
+ * Checks that explain is supported by the server and operation.
+ * @internal
+ *
+ * @param server - to check against
+ * @param op - the operation to explain
+ */
+export function explainNotSupported(server: Server, op: string): boolean {
+  // todo could make all these wire versions constants so we don't need magic strings in other files
+  const wireVersion = maxWireVersion(server);
+  if (
+    (op === 'remove' && wireVersion >= 3) ||
+    (op === 'update' && wireVersion >= 3) ||
+    (op === 'distinct' && wireVersion >= 3.2) ||
+    (op === 'findAndModify' && wireVersion >= 3.2) ||
+    (op === 'mapReduce' && wireVersion >= 4.4)
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 /**

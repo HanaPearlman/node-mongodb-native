@@ -5,7 +5,8 @@ import {
   decorateWithCollation,
   applyWriteConcern,
   hasAtomicOperators,
-  Callback
+  Callback,
+  explainNotSupported
 } from '../utils';
 import { MongoError } from '../error';
 import { CommandOperation, CommandOperationOptions } from './command';
@@ -145,6 +146,17 @@ export class FindAndModifyOperation extends CommandOperation<FindAndModifyOption
       }
 
       cmd.hint = options.hint;
+    }
+
+    if (options.explain) {
+      if (explainNotSupported(server, 'findAndModify')) {
+        callback(
+          new MongoError('The current topology does not support explain on findAndModify commands')
+        );
+        return;
+      }
+
+      cmd.explain = options.explain;
     }
 
     // Execute the command
