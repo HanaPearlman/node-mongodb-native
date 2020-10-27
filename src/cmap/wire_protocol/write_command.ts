@@ -66,7 +66,9 @@ export function writeCommand(
   }
 
   // at this point we should know that the server can execute and explain for the specific op
-  writeCommand = decorateWithExplain(writeCommand, options);
+  if (options.explain) {
+    writeCommand = decorateWithExplain(writeCommand, options);
+  }
 
   const commandOptions = Object.assign(
     {

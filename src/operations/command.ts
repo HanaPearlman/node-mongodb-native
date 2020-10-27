@@ -132,10 +132,9 @@ export abstract class CommandOperation<
     }
 
     // explain inherits any comment from its command
+    // If a cmd has an explain at this point, then we know it is valid and able to be executed
     if (cmd.explain) {
-      const verbosity = cmd['explain'];
-      delete cmd['explain']; // todo i know this is bad
-      cmd = decorateWithExplain(cmd, { explain: verbosity }); // todo fix types so options extends explain specifically?
+      cmd = decorateWithExplain(cmd, { explain: cmd.explain });
     }
 
     if (this.logger && this.logger.isDebug()) {

@@ -459,13 +459,18 @@ export function decorateWithCollation(
   }
 }
 
-export function decorateWithExplain(command: Document, options?: ExplainOptions): Document {
-  if (options?.explain) {
+export function decorateWithExplain(command: Document, options: ExplainOptions): Document {
+  if (options.explain) {
+    // Commands being explained may not have an explain field
+    if (command.explain) {
+      delete command['explain'];
+    }
+
+    // Reformat command into explain command
     command = { explain: command };
     if (typeof options.explain === 'string') {
       command.verbosity = options.explain;
     }
-    // todo, add support for comment?
   }
   return command;
 }

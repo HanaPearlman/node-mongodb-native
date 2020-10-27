@@ -22,18 +22,20 @@ export const SUPPORTS_EXPLAIN_WITH_DISTINCT = 3.2;
 export const SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY = 3.2;
 export const SUPPORTS_EXPLAIN_WITH_MAP_REDUCE = 4.4;
 
+export type Verbosity =
+  | boolean
+  | ExplainVerbosity.queryPlannerExtended
+  | ExplainVerbosity.queryPlannerExtended
+  | ExplainVerbosity.executionStats
+  | ExplainVerbosity.allPlansExecution;
+
 /** @public */
 export interface ExplainOptions {
   /**
    * Represents the requested verbosity of the explain. Valid values include a boolean
    * or any of the ExplainVerbosity strings.
    * */
-  explain?:
-    | boolean
-    | ExplainVerbosity.queryPlannerExtended
-    | ExplainVerbosity.queryPlannerExtended
-    | ExplainVerbosity.executionStats
-    | ExplainVerbosity.allPlansExecution;
+  explain?: Verbosity;
 }
 
 /**
