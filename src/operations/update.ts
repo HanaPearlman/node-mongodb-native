@@ -6,9 +6,10 @@ import type { Server } from '../sdam/server';
 import type { Collection } from '../collection';
 import type { CollationOptions, WriteCommandOptions } from '../cmap/wire_protocol/write_command';
 import type { ObjectId, Document } from '../bson';
+import type { ExplainOptions } from '../explain';
 
 /** @public */
-export interface UpdateOptions extends CommandOperationOptions {
+export interface UpdateOptions extends CommandOperationOptions, ExplainOptions {
   /** A set of filters specifying to which array elements an update should apply */
   arrayFilters?: Document[];
   /** If true, allows the write to opt-out of document level validation */

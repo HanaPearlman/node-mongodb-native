@@ -1,18 +1,14 @@
 import { Aspect, defineAspects } from './operation';
 import { CommandOperation, CommandOperationOptions } from './command';
-import {
-  decorateWithCollation,
-  decorateWithReadConcern,
-  Callback,
-  explainNotSupported
-} from '../utils';
+import { decorateWithCollation, decorateWithReadConcern, Callback, maxWireVersion } from '../utils';
 import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
 import type { Collection } from '../collection';
 import { MongoError } from '../error';
+import { ExplainOptions, SUPPORTS_EXPLAIN_WITH_DISTINCT } from '../explain';
 
 /** @public */
-export type DistinctOptions = CommandOperationOptions;
+export interface DistinctOptions extends CommandOperationOptions, ExplainOptions {}
 
 /** @internal Return a list of distinct values for the given key across a collection. */
 export class DistinctOperation extends CommandOperation<DistinctOptions, Document[]> {
@@ -67,7 +63,7 @@ export class DistinctOperation extends CommandOperation<DistinctOptions, Documen
     }
 
     if (options.explain) {
-      if (explainNotSupported(server, 'distinct')) {
+      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_DISTINCT) {
         callback(
           new MongoError('The current topology does not support explain on distinct commands')
         );

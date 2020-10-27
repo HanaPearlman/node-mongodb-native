@@ -4,6 +4,7 @@ import { command, CommandOptions } from './command';
 import type { Server } from '../../sdam/server';
 import type { Document, BSONSerializeOptions } from '../../bson';
 import type { WriteConcern } from '../../write_concern';
+import type { ExplainOptions } from '../../explain';
 
 /** @public */
 export interface CollationOptions {
@@ -17,15 +18,8 @@ export interface CollationOptions {
   backwards: boolean;
 }
 
-export interface ExplainableOptions {
-  explain?: string | boolean; // todo replace with enum?
-}
-
 /** @internal */
-export interface WriteCommandOptions
-  extends BSONSerializeOptions,
-    CommandOptions,
-    ExplainableOptions {
+export interface WriteCommandOptions extends BSONSerializeOptions, CommandOptions, ExplainOptions {
   ordered?: boolean;
   writeConcern?: WriteConcern;
   collation?: CollationOptions;

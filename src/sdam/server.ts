@@ -14,8 +14,7 @@ import {
   maxWireVersion,
   ClientMetadataOptions,
   Callback,
-  CallbackWithType,
-  explainNotSupported
+  CallbackWithType
 } from '../utils';
 import {
   ServerType,
@@ -46,6 +45,7 @@ import type { WriteCommandOptions } from '../cmap/wire_protocol/write_command';
 import type { Document, Long } from '../bson';
 import type { AutoEncrypter } from '../deps';
 import type { FindOptions } from '../operations/find';
+import { explainNotSupported } from '../explain';
 
 // Used for filtering out fields for logging
 const DEBUG_FIELDS = [

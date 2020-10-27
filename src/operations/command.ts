@@ -10,6 +10,7 @@ import type { Server } from '../sdam/server';
 import type { Document } from '../bson';
 import type { CollationOptions } from '../cmap/wire_protocol/write_command';
 import type { ReadConcernLike } from './../read_concern';
+import { ExplainVerbosity } from '../explain';
 
 const SUPPORTS_WRITE_CONCERN_AND_COLLATION = 5;
 
@@ -53,7 +54,6 @@ export abstract class CommandOperation<
   readPreference: ReadPreference;
   readConcern?: ReadConcern;
   writeConcern?: WriteConcern;
-  explain: boolean;
   fullResponse?: boolean;
   logger?: Logger;
 
@@ -78,7 +78,6 @@ export abstract class CommandOperation<
       : ReadPreference.resolve(propertyProvider, this.options);
     this.readConcern = resolveReadConcern(propertyProvider, this.options);
     this.writeConcern = resolveWriteConcern(propertyProvider, this.options);
-    this.explain = false;
     this.fullResponse =
       options && typeof options.fullResponse === 'boolean' ? options.fullResponse : false;
 
@@ -135,8 +134,9 @@ export abstract class CommandOperation<
 
     // explain inherits any comment from its command
     if (cmd.explain) {
+      const verbosity = cmd['explain'];
       delete cmd['explain']; // todo i know this is bad
-      cmd = decorateWithExplain(cmd, options); // todo fix types so options extends explain specifically?
+      cmd = decorateWithExplain(cmd, { explain: verbosity }); // todo fix types so options extends explain specifically?
     }
 
     if (this.logger && this.logger.isDebug()) {

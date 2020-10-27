@@ -5,8 +5,7 @@ import {
   decorateWithCollation,
   applyWriteConcern,
   hasAtomicOperators,
-  Callback,
-  explainNotSupported
+  Callback
 } from '../utils';
 import { MongoError } from '../error';
 import { CommandOperation, CommandOperationOptions } from './command';
@@ -15,9 +14,10 @@ import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
 import type { Collection } from '../collection';
 import { Sort, formatSort } from '../sort';
+import { ExplainOptions, SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY } from '../explain';
 
 /** @public */
-export interface FindAndModifyOptions extends CommandOperationOptions {
+export interface FindAndModifyOptions extends CommandOperationOptions, ExplainOptions {
   /** When false, returns the updated document rather than the original. The default is true. */
   returnOriginal?: boolean;
   /** Upsert the document if it does not exist. */
@@ -149,7 +149,7 @@ export class FindAndModifyOperation extends CommandOperation<FindAndModifyOption
     }
 
     if (options.explain) {
-      if (explainNotSupported(server, 'findAndModify')) {
+      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY) {
         callback(
           new MongoError('The current topology does not support explain on findAndModify commands')
         );

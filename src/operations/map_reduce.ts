@@ -6,7 +6,7 @@ import {
   decorateWithReadConcern,
   isObject,
   Callback,
-  explainNotSupported
+  maxWireVersion
 } from '../utils';
 import { ReadPreference, ReadPreferenceMode } from '../read_preference';
 import { CommandOperation, CommandOperationOptions } from './command';
@@ -15,6 +15,7 @@ import type { Collection } from '../collection';
 import type { Sort } from '../sort';
 import { MongoError } from '../error';
 import type { ObjectId } from '../bson';
+import { ExplainOptions, SUPPORTS_EXPLAIN_WITH_MAP_REDUCE } from '../explain';
 
 const exclusionList = [
   'readPreference',
@@ -35,7 +36,7 @@ export type ReduceFunction = (key: string, values: Document[]) => Document;
 export type FinalizeFunction = (key: string, reducedValue: Document) => Document;
 
 /** @public */
-export interface MapReduceOptions extends CommandOperationOptions {
+export interface MapReduceOptions extends CommandOperationOptions, ExplainOptions {
   /** Sets the output target for the map reduce job. */
   out?: 'inline' | { inline: 1 } | { replace: string } | { merge: string } | { reduce: string };
   /** Query filter object. */
@@ -151,7 +152,7 @@ export class MapReduceOperation extends CommandOperation<MapReduceOptions, Docum
     }
 
     if (options.explain) {
-      if (explainNotSupported(server, 'mapReduce')) {
+      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_MAP_REDUCE) {
         callback(
           new MongoError('The current topology does not support explain on mapReduce commands')
         );
