@@ -156,15 +156,15 @@ export class MapReduceOperation extends CommandOperation<MapReduceOptions, Docum
     }
 
     if (options.explain) {
-      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_MAP_REDUCE) {
-        callback(
-          new MongoError('The current topology does not support explain on mapReduce commands')
-        );
+      if (!validExplainVerbosity(options.explain)) {
+        callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
         return;
       }
 
-      if (!validExplainVerbosity(options.explain)) {
-        callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
+      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_MAP_REDUCE) {
+        callback(
+          new MongoError('the current topology does not support explain on mapReduce commands')
+        );
         return;
       }
 

@@ -45,7 +45,7 @@ import type { WriteCommandOptions } from '../cmap/wire_protocol/write_command';
 import type { Document, Long } from '../bson';
 import type { AutoEncrypter } from '../deps';
 import type { FindOptions } from '../operations/find';
-import { explainNotSupported, validExplainVerbosity } from '../explain';
+import { explainSupported, validExplainVerbosity } from '../explain';
 
 // Used for filtering out fields for logging
 const DEBUG_FIELDS = [
@@ -459,13 +459,13 @@ function executeWriteOperation(
   }
 
   if (options.explain) {
-    if (explainNotSupported(server, op)) {
-      callback(new MongoError(`server ${server.name} does not support explain on ${op}`));
+    if (!validExplainVerbosity(options.explain)) {
+      callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
       return;
     }
 
-    if (!validExplainVerbosity(options.explain)) {
-      callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
+    if (!explainSupported(server, op)) {
+      callback(new MongoError(`server ${server.name} does not support explain on ${op}`));
       return;
     }
   }

@@ -143,7 +143,7 @@ export class FindAndModifyOperation extends CommandOperation<FindAndModifyOption
       const unacknowledgedWrite = this.writeConcern?.w === 0;
       if (unacknowledgedWrite || maxWireVersion(server) < 8) {
         callback(
-          new MongoError('The current topology does not support a hint on findAndModify commands')
+          new MongoError('the current topology does not support a hint on findAndModify commands')
         );
 
         return;
@@ -153,15 +153,15 @@ export class FindAndModifyOperation extends CommandOperation<FindAndModifyOption
     }
 
     if (options.explain) {
-      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY) {
-        callback(
-          new MongoError('The current topology does not support explain on findAndModify commands')
-        );
+      if (!validExplainVerbosity(options.explain)) {
+        callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
         return;
       }
 
-      if (!validExplainVerbosity(options.explain)) {
-        callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
+      if (maxWireVersion(server) < SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY) {
+        callback(
+          new MongoError('the current topology does not support explain on findAndModify commands')
+        );
         return;
       }
 

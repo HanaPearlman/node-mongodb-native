@@ -1,3 +1,4 @@
+import type { Document } from '.';
 import type { Server } from './sdam/server';
 import { maxWireVersion } from './utils';
 
@@ -45,7 +46,7 @@ export interface ExplainOptions {
  * @param server - to check against
  * @param op - the operation to explain
  */
-export function explainNotSupported(server: Server, op: string): boolean {
+export function explainSupported(server: Server, op: string): boolean {
   const wireVersion = maxWireVersion(server);
   if (
     (op === 'remove' && wireVersion >= SUPPORTS_EXPLAIN_WITH_REMOVE) ||
@@ -54,12 +55,11 @@ export function explainNotSupported(server: Server, op: string): boolean {
     (op === 'findAndModify' && wireVersion >= SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY) ||
     (op === 'mapReduce' && wireVersion >= SUPPORTS_EXPLAIN_WITH_MAP_REDUCE)
   ) {
-    return false;
+    return true;
   }
 
-  return true;
+  return false;
 }
-
 // technically doesn't need to be used but what if using driver w non-typescript?
 export function validExplainVerbosity(verbosity: boolean | string): boolean {
   if (typeof verbosity === 'string') {
