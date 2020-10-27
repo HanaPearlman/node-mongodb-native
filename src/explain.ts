@@ -1,13 +1,20 @@
 import type { Server } from './sdam/server';
 import { maxWireVersion } from './utils';
 
-/** @public */
 export enum ExplainVerbosity {
   queryPlanner = 'queryPlanner',
   queryPlannerExtended = 'queryPlannerExtended',
   executionStats = 'executionStats',
   allPlansExecution = 'allPlansExecution'
 }
+
+// export enum ExplainableOpString {
+//   remove = 'remove',
+//   update = 'update',
+//   distinct = 'distinct',
+//   findAndModify = 'findAndModify',
+//   mapReduce = 'mapReduce'
+// }
 
 export const SUPPORTS_EXPLAIN_WITH_REMOVE = 3;
 export const SUPPORTS_EXPLAIN_WITH_UPDATE = 3;
@@ -17,8 +24,16 @@ export const SUPPORTS_EXPLAIN_WITH_MAP_REDUCE = 4.4;
 
 /** @public */
 export interface ExplainOptions {
-  /** Max secondary read staleness in seconds, Minimum value is 90 seconds.*/
-  explain?: boolean | string;
+  /**
+   * Represents the requested verbosity of the explain. Valid values include a boolean
+   * or any of the ExplainVerbosity strings.
+   * */
+  explain?:
+    | boolean
+    | ExplainVerbosity.queryPlannerExtended
+    | ExplainVerbosity.queryPlannerExtended
+    | ExplainVerbosity.executionStats
+    | ExplainVerbosity.allPlansExecution;
 }
 
 /**
@@ -40,5 +55,18 @@ export function explainNotSupported(server: Server, op: string): boolean {
     return false;
   }
 
+  return true;
+}
+
+// technically doesn't need to be used but what if using driver w non-typescript?
+export function validExplainVerbosity(verbosity: boolean | string): boolean {
+  if (typeof verbosity === 'string') {
+    return (
+      verbosity === ExplainVerbosity.queryPlanner ||
+      verbosity === ExplainVerbosity.queryPlannerExtended ||
+      verbosity === ExplainVerbosity.allPlansExecution ||
+      verbosity === ExplainVerbosity.executionStats
+    );
+  }
   return true;
 }

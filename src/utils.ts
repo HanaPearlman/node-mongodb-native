@@ -462,13 +462,8 @@ export function decorateWithCollation(
 export function decorateWithExplain(command: Document, options?: ExplainOptions): Document {
   if (options?.explain) {
     command = { explain: command };
-    const verbosity = options.explain;
-    if (
-      verbosity === 'queryPlanner' ||
-      verbosity === 'executionStats' ||
-      verbosity === 'allPlansExecution'
-    ) {
-      command.verbosity = verbosity;
+    if (typeof options.explain === 'string') {
+      command.verbosity = options.explain;
     }
     // todo, add support for comment?
   }

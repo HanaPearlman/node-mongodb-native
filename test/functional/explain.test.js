@@ -353,29 +353,30 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorQueryPlannerExtendedStringExplainWithRemoveOne', {
-    metadata: {
-      requires: {
-        mongodb: '>3.0'
-      }
-    },
-    test: withClient(function (client, done) {
-      var db = client.db('shouldHonorQueryPlannerExtendedStringExplainWithRemoveOne');
-      var collection = db.collection('test');
+  // have to skip this Or move it to a data lake testing file
+  // it('shouldHonorQueryPlannerExtendedStringExplainWithRemoveOne', {
+  //   metadata: {
+  //     requires: {
+  //       mongodb: '>3.0'
+  //     }
+  //   },
+  //   test: withClient(function (client, done) {
+  //     var db = client.db('shouldHonorQueryPlannerExtendedStringExplainWithRemoveOne');
+  //     var collection = db.collection('test');
 
-      collection.insertOne({ a: 1 }, (err, res) => {
-        expect(err).to.not.exist;
-        expect(res).to.exist;
+  //     collection.insertOne({ a: 1 }, (err, res) => {
+  //       expect(err).to.not.exist;
+  //       expect(res).to.exist;
 
-        // Verify explanation result contains properties of queryPlannerExtended (treated like allPlansExecution)
-        collection.removeOne({ a: 1 }, { explain: 'queryPlannerExtended' }, (err, explanation) => {
-          expect(err).to.not.exist;
-          expect(explanation).to.exist;
-          expect(explanation).property('queryPlanner').to.exist;
-          expect(explanation).nested.property('executionStats.allPlansExecution').to.exist;
-          done();
-        });
-      });
-    })
-  });
+  //       // Verify explanation result contains properties of queryPlannerExtended (treated like allPlansExecution)
+  //       collection.removeOne({ a: 1 }, { explain: 'queryPlannerExtended' }, (err, explanation) => {
+  //         expect(err).to.not.exist;
+  //         expect(explanation).to.exist;
+  //         expect(explanation).property('queryPlanner').to.exist;
+  //         expect(explanation).nested.property('executionStats.allPlansExecution').to.exist;
+  //         done();
+  //       });
+  //     });
+  //   })
+  // });
 });

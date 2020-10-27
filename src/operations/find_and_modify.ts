@@ -14,7 +14,11 @@ import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
 import type { Collection } from '../collection';
 import { Sort, formatSort } from '../sort';
-import { ExplainOptions, SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY } from '../explain';
+import {
+  ExplainOptions,
+  SUPPORTS_EXPLAIN_WITH_FIND_AND_MODIFY,
+  validExplainVerbosity
+} from '../explain';
 
 /** @public */
 export interface FindAndModifyOptions extends CommandOperationOptions, ExplainOptions {
@@ -153,6 +157,11 @@ export class FindAndModifyOperation extends CommandOperation<FindAndModifyOption
         callback(
           new MongoError('The current topology does not support explain on findAndModify commands')
         );
+        return;
+      }
+
+      if (!validExplainVerbosity(options.explain)) {
+        callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
         return;
       }
 

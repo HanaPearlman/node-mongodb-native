@@ -5,7 +5,7 @@ import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
 import type { Collection } from '../collection';
 import { MongoError } from '../error';
-import { ExplainOptions, SUPPORTS_EXPLAIN_WITH_DISTINCT } from '../explain';
+import { ExplainOptions, SUPPORTS_EXPLAIN_WITH_DISTINCT, validExplainVerbosity } from '../explain';
 
 /** @public */
 export interface DistinctOptions extends CommandOperationOptions, ExplainOptions {}
@@ -67,6 +67,11 @@ export class DistinctOperation extends CommandOperation<DistinctOptions, Documen
         callback(
           new MongoError('The current topology does not support explain on distinct commands')
         );
+        return;
+      }
+
+      if (!validExplainVerbosity(options.explain)) {
+        callback(new MongoError(`${options.explain} is an invalid explain verbosity`));
         return;
       }
 
