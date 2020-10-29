@@ -10,7 +10,7 @@ import type { Server } from '../sdam/server';
 import type { Document } from '../bson';
 import type { CollationOptions } from '../cmap/wire_protocol/write_command';
 import type { ReadConcernLike } from './../read_concern';
-import type { Verbosity } from '../explain';
+import type { Explain } from '../explain';
 
 const SUPPORTS_WRITE_CONCERN_AND_COLLATION = 5;
 
@@ -54,7 +54,7 @@ export abstract class CommandOperation<
   readPreference: ReadPreference;
   readConcern?: ReadConcern;
   writeConcern?: WriteConcern;
-  explain?: Verbosity;
+  explain?: Explain;
   fullResponse?: boolean;
   logger?: Logger;
 
@@ -93,7 +93,7 @@ export abstract class CommandOperation<
   }
 
   get canRetryWrite(): boolean {
-    return !this.explain;
+    return this.explain === undefined;
   }
 
   abstract execute(server: Server, callback: Callback<TResult>): void;
@@ -140,7 +140,7 @@ export abstract class CommandOperation<
     // If we have reached this point, then the explain verbosity must be valid
     // Note: explain inherits any comment from its command
     if (this.explain) {
-      cmd = decorateWithExplain(cmd, { explain: this.explain });
+      cmd = decorateWithExplain(cmd, { explain: this.explain.explain }); // TODO!
     }
 
     if (this.logger && this.logger.isDebug()) {
