@@ -13,12 +13,13 @@ import { PromiseProvider } from '../promise_provider';
 import type { OperationTime, ResumeToken } from '../change_stream';
 import type { CloseOptions } from '../cmap/connection_pool';
 import type { CollationOptions } from '../cmap/wire_protocol/write_command';
-import type { Hint, OperationBase } from '../operations/operation';
+import type { Hint } from '../operations/operation';
 import type { Topology } from '../sdam/topology';
-import type { CommandOperationOptions } from '../operations/command';
+import type { CommandOperation, CommandOperationOptions } from '../operations/command';
 import type { ReadConcern } from '../read_concern';
 import type { Server } from '../sdam/server';
 import type { ClientSession } from '../sessions';
+import { Explain } from '../explain';
 
 const kCursor = Symbol('cursor');
 
@@ -236,7 +237,7 @@ export class CursorStream extends Readable {
  * ```
  */
 export class Cursor<
-  O extends OperationBase = OperationBase,
+  O extends CommandOperation = CommandOperation,
   T extends CursorOptions = CursorOptions
 > extends EventEmitter {
   /** @internal */
@@ -1299,15 +1300,7 @@ export class Cursor<
   explain(): Promise<unknown>;
   explain(callback: Callback): void;
   explain(callback?: Callback): Promise<unknown> | void {
-    // NOTE: the next line includes a special case for operations which do not
-    //       subclass `CommandOperationV2`. To be removed asap.
-    // TODO: uncomment/fix this when cursor explain is re-implemented
-    // if (this.operation && this.operation.cmd == null) {
-    //   this.operation.options.explain = true;
-    //   return executeOperation(this.topology, this.operation as any, callback);
-    // }
-
-    this.cmd.explain = true;
+    this.operation.explain = new Explain(true); // todo but this could be null?
 
     // Do we have a readConcern
     if (this.cmd.readConcern) {

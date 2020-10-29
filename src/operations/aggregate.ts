@@ -7,13 +7,14 @@ import type { Callback } from '../utils';
 import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
 import type { CollationOptions } from '../cmap/wire_protocol/write_command';
+import { Explain, ExplainOptions } from '../explain';
 
 /** @internal */
 export const DB_AGGREGATE_COLLECTION = 1 as const;
 const MIN_WIRE_VERSION_$OUT_READ_CONCERN_SUPPORT = 8 as const;
 
 /** @public */
-export interface AggregateOptions extends CommandOperationOptions {
+export interface AggregateOptions extends CommandOperationOptions, ExplainOptions {
   /** allowDiskUse lets the server know if it can use disk to store temporary results for the aggregation (requires mongodb 2.6 \>). */
   allowDiskUse?: boolean;
   /** The number of documents to return per batch. See [aggregation documentation](https://docs.mongodb.com/manual/reference/command/aggregate). */
@@ -76,6 +77,10 @@ export class AggregateOperation<T = Document> extends CommandOperation<Aggregate
     if (options?.cursor != null && typeof options.cursor !== 'object') {
       throw new MongoError('cursor options must be an object');
     }
+
+    this.explain = Explain.fromOptions(options);
+
+    this.cmd = { aggregate: this.target, pipeline: this.pipeline };
   }
 
   get canRetryRead(): boolean {
@@ -89,7 +94,7 @@ export class AggregateOperation<T = Document> extends CommandOperation<Aggregate
   execute(server: Server, callback: Callback<T>): void {
     const options: AggregateOptions = this.options;
     const serverWireVersion = maxWireVersion(server);
-    const command: Document = { aggregate: this.target, pipeline: this.pipeline };
+    const command: Document = Object.assign({}, this.cmd);
 
     if (this.hasWriteStage && serverWireVersion < MIN_WIRE_VERSION_$OUT_READ_CONCERN_SUPPORT) {
       this.readConcern = undefined;
@@ -111,10 +116,6 @@ export class AggregateOperation<T = Document> extends CommandOperation<Aggregate
 
     if (options.hint) {
       command.hint = options.hint;
-    }
-
-    if (options.explain) {
-      command.explain = options.explain;
     }
 
     command.cursor = options.cursor || {};

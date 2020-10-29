@@ -386,7 +386,7 @@ describe('Aggregation', function () {
    * @example-class Collection
    * @example-method aggregate
    */
-  it.skip('should correctly return a cursor and call explain', {
+  it('should correctly return a cursor and call explain', {
     // TODO: add back this test when cursor explain is fully implemented
 
     // Add a tag that our runner can trigger on
@@ -460,7 +460,8 @@ describe('Aggregation', function () {
           cursor.explain(function (err, result) {
             expect(err).to.not.exist;
             expect(result.stages).to.have.lengthOf.at.least(1);
-            expect(result.stages[0]).to.have.key('$cursor');
+            expect(result.stages[0]).to.have.property('$cursor');
+            expect(result.stages[0].$cursor).to.have.property('queryPlanner');
 
             client.close(done);
           });

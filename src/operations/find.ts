@@ -1,6 +1,12 @@
 import { Aspect, defineAspects, Hint } from './operation';
 import { ReadPreference } from '../read_preference';
-import { maxWireVersion, MongoDBNamespace, Callback, normalizeHintField } from '../utils';
+import {
+  maxWireVersion,
+  MongoDBNamespace,
+  Callback,
+  normalizeHintField,
+  decorateWithExplain
+} from '../utils';
 import { MongoError } from '../error';
 import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
@@ -224,6 +230,10 @@ export class FindOperation extends CommandOperation<FindOptions, Document> {
 
     if (typeof options.allowDiskUse === 'boolean') {
       findCommand.allowDiskUse = options.allowDiskUse;
+    }
+
+    if (this.explain) {
+      findCommand.explain = this.explain; // unfortunately we have to do this
     }
 
     // TODO: use `MongoDBNamespace` through and through
