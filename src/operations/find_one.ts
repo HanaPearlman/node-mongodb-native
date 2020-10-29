@@ -5,6 +5,7 @@ import type { Collection } from '../collection';
 import type { FindOptions } from './find';
 import { MongoError } from '../error';
 import type { Server } from '../sdam/server';
+import { Explain } from '../explain';
 
 /** @internal */
 export class FindOneOperation extends OperationBase<FindOptions, Document> {
@@ -16,6 +17,7 @@ export class FindOneOperation extends OperationBase<FindOptions, Document> {
 
     this.collection = collection;
     this.query = query;
+    this.explain = Explain.fromOptions(options);
   }
 
   execute(server: Server, callback: Callback<Document>): void {

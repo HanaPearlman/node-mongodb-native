@@ -426,4 +426,187 @@ describe('Explain', function () {
       });
     })
   });
+
+  it('shouldHonorBooleanExplainWithAggregate', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorBooleanExplainWithAggregate');
+      const collection = db.collection('test');
+
+      collection.aggregate([{ $project: { a: 1 } }], { explain: true }).toArray((err, docs) => {
+        expect(err).to.not.exist;
+        const explanation = docs[0];
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorStringExplainWithAggregate', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorStringExplainWithAggregate');
+      const collection = db.collection('test');
+
+      collection
+        .aggregate([{ $project: { a: 1 } }], { explain: 'executionStats' })
+        .toArray((err, docs) => {
+          expect(err).to.not.exist;
+          const explanation = docs[0];
+          expect(explanation).to.exist;
+          expect(explanation).property('queryPlanner').to.exist;
+          expect(explanation).property('executionStats').to.exist;
+          done();
+        });
+    })
+  });
+
+  it('shouldHonorBooleanExplainWithFind', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorBooleanExplainWithFind');
+      const collection = db.collection('test');
+
+      collection.find({ a: 1 }, { explain: true }).toArray((err, docs) => {
+        expect(err).to.not.exist;
+        const explanation = docs[0];
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorStringExplainWithFind', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorStringExplainWithFind');
+      const collection = db.collection('test');
+
+      collection.find({ a: 1 }, { explain: 'executionStats' }).toArray((err, docs) => {
+        expect(err).to.not.exist;
+        const explanation = docs[0];
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        expect(explanation).property('executionStats').to.exist;
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorBooleanExplainWithFindOne', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorBooleanExplainWithFindOne');
+      const collection = db.collection('test');
+
+      collection.findOne({ a: 1 }, { explain: true }, (err, explanation) => {
+        expect(err).to.not.exist;
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorStringExplainWithFindOne', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorStringExplainWithFindOne');
+      const collection = db.collection('test');
+
+      collection.findOne({ a: 1 }, { explain: 'executionStats' }, (err, explanation) => {
+        expect(err).to.not.exist;
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        expect(explanation).property('executionStats').to.exist;
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorBooleanExplainSpecifiedOnCursorWithFind', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
+      const collection = db.collection('test');
+      const cursor = collection.find({ a: 1 });
+      cursor.explain(false, (err, explanation) => {
+        expect(err).to.not.exist;
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        expect(explanation).to.not.have.property('executionStats');
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorBooleanExplainSpecifiedOnCursorWithAggregate', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
+      const collection = db.collection('test');
+      const cursor = collection.aggregate([]);
+      cursor.explain(false, (err, explanation) => {
+        expect(err).to.not.exist;
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        expect(explanation).to.not.have.property('executionStats');
+        done();
+      });
+    })
+  });
+
+  it('shouldHonorStringExplainSpecifiedOnCursor', {
+    metadata: {
+      requires: {
+        mongodb: '>3.0'
+      }
+    },
+    test: withClient(function (client, done) {
+      const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
+      const collection = db.collection('test');
+      const cursor = collection.find({ a: 1 });
+      cursor.explain('allPlansExecution', (err, explanation) => {
+        expect(err).to.not.exist;
+        expect(explanation).to.exist;
+        expect(explanation).property('queryPlanner').to.exist;
+        expect(explanation).property('executionStats').to.exist;
+        done();
+      });
+    })
+  });
 });

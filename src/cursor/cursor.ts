@@ -13,13 +13,13 @@ import { PromiseProvider } from '../promise_provider';
 import type { OperationTime, ResumeToken } from '../change_stream';
 import type { CloseOptions } from '../cmap/connection_pool';
 import type { CollationOptions } from '../cmap/wire_protocol/write_command';
-import type { Hint } from '../operations/operation';
+import type { Hint, OperationBase } from '../operations/operation';
 import type { Topology } from '../sdam/topology';
-import type { CommandOperation, CommandOperationOptions } from '../operations/command';
+import type { CommandOperationOptions } from '../operations/command';
 import type { ReadConcern } from '../read_concern';
 import type { Server } from '../sdam/server';
 import type { ClientSession } from '../sessions';
-import { Explain } from '../explain';
+import { Explain, VerbosityLike } from '../explain';
 
 const kCursor = Symbol('cursor');
 
@@ -237,7 +237,7 @@ export class CursorStream extends Readable {
  * ```
  */
 export class Cursor<
-  O extends CommandOperation = CommandOperation,
+  O extends OperationBase = OperationBase,
   T extends CursorOptions = CursorOptions
 > extends EventEmitter {
   /** @internal */
@@ -1297,10 +1297,13 @@ export class Cursor<
    *
    * @param callback - The result callback.
    */
-  explain(): Promise<unknown>;
-  explain(callback: Callback): void;
-  explain(callback?: Callback): Promise<unknown> | void {
-    this.operation.explain = new Explain(true); // todo but this could be null?
+  explain(verbosity?: VerbosityLike): Promise<unknown>;
+  explain(verbosity?: VerbosityLike, callback?: Callback): void;
+  explain(verbosity?: VerbosityLike, callback?: Callback): Promise<unknown> | void {
+    if (typeof verbosity === 'function') (callback = verbosity), (verbosity = true);
+    if (verbosity === undefined) verbosity = true;
+
+    this.operation.explain = new Explain(verbosity);
 
     // Do we have a readConcern
     if (this.cmd.readConcern) {

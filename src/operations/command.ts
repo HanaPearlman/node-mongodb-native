@@ -10,7 +10,6 @@ import type { Server } from '../sdam/server';
 import type { Document } from '../bson';
 import type { CollationOptions } from '../cmap/wire_protocol/write_command';
 import type { ReadConcernLike } from './../read_concern';
-import type { Explain } from '../explain';
 
 const SUPPORTS_WRITE_CONCERN_AND_COLLATION = 5;
 
@@ -54,7 +53,6 @@ export abstract class CommandOperation<
   readPreference: ReadPreference;
   readConcern?: ReadConcern;
   writeConcern?: WriteConcern;
-  explain?: Explain;
   fullResponse?: boolean;
   logger?: Logger;
 
@@ -90,10 +88,6 @@ export abstract class CommandOperation<
     if (parent && parent.logger) {
       this.logger = parent.logger;
     }
-  }
-
-  get canRetryWrite(): boolean {
-    return this.explain === undefined;
   }
 
   abstract execute(server: Server, callback: Callback<TResult>): void;

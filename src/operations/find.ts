@@ -1,12 +1,6 @@
 import { Aspect, defineAspects, Hint } from './operation';
 import { ReadPreference } from '../read_preference';
-import {
-  maxWireVersion,
-  MongoDBNamespace,
-  Callback,
-  normalizeHintField,
-  decorateWithExplain
-} from '../utils';
+import { maxWireVersion, MongoDBNamespace, Callback, normalizeHintField } from '../utils';
 import { MongoError } from '../error';
 import type { Document } from '../bson';
 import type { Server } from '../sdam/server';
@@ -15,9 +9,10 @@ import type { CollationOptions } from '../cmap/wire_protocol/write_command';
 import type { QueryOptions } from '../cmap/wire_protocol/query';
 import { CommandOperation, CommandOperationOptions } from './command';
 import { Sort, formatSort } from '../sort';
+import { Explain, ExplainOptions } from '../explain';
 
 /** @public */
-export interface FindOptions extends QueryOptions, CommandOperationOptions {
+export interface FindOptions extends QueryOptions, CommandOperationOptions, ExplainOptions {
   /** Sets the limit of documents returned in the query. */
   limit?: number;
   /** Set to sort the documents coming back from the query. Array of indexes, `[['a', 1]]` etc. */
@@ -115,6 +110,13 @@ export class FindOperation extends CommandOperation<FindOptions, Document> {
       promoteBuffers: options.promoteBuffers ?? collection.s.promoteBuffers ?? false,
       ignoreUndefined: options.ignoreUndefined ?? collection.s.ignoreUndefined ?? false
     };
+
+    if (options?.explain && (this.readConcern || this.writeConcern)) {
+      throw new MongoError(
+        '"explain" cannot be used on an find call with readConcern/writeConcern'
+      );
+    }
+    this.explain = Explain.fromOptions(options);
   }
 
   execute(server: Server, callback: Callback<Document>): void {

@@ -73,12 +73,11 @@ export class AggregateOperation<T = Document> extends CommandOperation<Aggregate
         '"explain" cannot be used on an aggregate call with readConcern/writeConcern'
       );
     }
+    this.explain = Explain.fromOptions(options);
 
     if (options?.cursor != null && typeof options.cursor !== 'object') {
       throw new MongoError('cursor options must be an object');
     }
-
-    this.explain = Explain.fromOptions(options);
 
     this.cmd = { aggregate: this.target, pipeline: this.pipeline };
   }

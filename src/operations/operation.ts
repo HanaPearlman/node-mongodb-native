@@ -3,6 +3,7 @@ import type { ClientSession } from '../sessions';
 import type { Document, BSONSerializeOptions } from '../bson';
 import type { MongoDBNamespace, Callback } from '../utils';
 import type { Server } from '../sdam/server';
+import type { Explain } from '../explain';
 
 export const Aspect = {
   READ_OPERATION: Symbol('READ_OPERATION'),
@@ -42,6 +43,7 @@ export abstract class OperationBase<
   readPreference: ReadPreference;
   server!: Server;
   fullResponse?: boolean;
+  explain?: Explain;
 
   // BSON serialization options
   bsonOptions?: BSONSerializeOptions;
@@ -83,7 +85,7 @@ export abstract class OperationBase<
   }
 
   get canRetryWrite(): boolean {
-    return true;
+    return this.explain === undefined;
   }
 }
 

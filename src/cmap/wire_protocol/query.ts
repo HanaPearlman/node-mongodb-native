@@ -1,7 +1,7 @@
 import { command, CommandOptions } from './command';
 import { Query } from '../commands';
 import { MongoError } from '../../error';
-import { maxWireVersion, collectionNamespace, Callback } from '../../utils';
+import { maxWireVersion, collectionNamespace, Callback, decorateWithExplain } from '../../utils';
 import { getReadPreference, isSharded, applyCommonQueryOptions } from './shared';
 import { Document, pluckBSONSerializeOptions } from '../../bson';
 import type { Server } from '../../sdam/server';
@@ -149,7 +149,7 @@ function prepareFindCommand(server: Server, ns: string, cmd: Document) {
   // If we have explain, we need to rewrite the find command
   // to wrap it in the explain command
   if (cmd.explain) {
-    findCmd = { explain: findCmd, verbosity: cmd.explain.explain }; // TODO
+    findCmd = decorateWithExplain(findCmd, { explain: cmd.explain.explain }); // TODO
   }
 
   return findCmd;
@@ -210,7 +210,7 @@ function prepareLegacyFindQuery(
     // nToReturn must be 0 (match all) or negative (match N and close cursor)
     // nToReturn > 0 will give explain results equivalent to limit(0)
     numberToReturn = -Math.abs(cmd.limit || 0);
-    findCmd = { explain: findCmd, verbosity: cmd.explain.explain };
+    findCmd = decorateWithExplain(findCmd, { explain: cmd.explain.explain });
   }
 
   const serializeFunctions =
