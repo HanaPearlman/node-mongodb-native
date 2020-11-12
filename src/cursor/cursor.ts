@@ -19,8 +19,7 @@ import { CommandOperation, CommandOperationOptions } from '../operations/command
 import type { ReadConcern } from '../read_concern';
 import type { Server } from '../sdam/server';
 import type { ClientSession } from '../sessions';
-import { Explain } from '../explain';
-import type { VerbosityLike } from '..';
+import { Explain, ExplainVerbosityLike } from '../explain';
 
 const kCursor = Symbol('cursor');
 
@@ -1305,12 +1304,12 @@ export class Cursor<
    * @param verbosity - The mode in which to run the explain.
    * @param callback - The result callback.
    */
-  explain(verbosity?: VerbosityLike): Promise<unknown>;
-  explain(verbosity?: VerbosityLike, callback?: Callback): Promise<unknown> | void {
+  explain(verbosity?: ExplainVerbosityLike): Promise<unknown>;
+  explain(verbosity?: ExplainVerbosityLike, callback?: Callback): Promise<unknown> | void {
     if (typeof verbosity === 'function') (callback = verbosity), (verbosity = true);
     if (verbosity === undefined) verbosity = true;
 
-    // For now, we need to manually do these checks. This will change after cursor refactor.
+    // TODO: For now, we need to manually do these checks. This will change after cursor refactor.
     if (
       !(this.operation instanceof CommandOperation) ||
       !this.operation.hasAspect(Aspect.EXPLAINABLE)

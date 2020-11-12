@@ -449,21 +449,13 @@ export function decorateWithReadConcern(
  *
  * @param command - the command on which to apply the explain
  * @param options - the options containing the explain verbosity
- * @param server - the server to
  */
-export function decorateWithExplain(cmd: Document, explain: Explain, server?: Server): Document {
-  if (cmd.explain) {
-    return cmd;
+export function decorateWithExplain(command: Document, explain: Explain): Document {
+  if (command.explain) {
+    return command;
   }
 
-  // Note: Prior to 3.6, aggregate() ignores the verbosity parameter and executes in queryPlanner
-  // mode, and the explain must be passed in via a boolean.
-  if (cmd.aggregate && maxWireVersion(server) < 6) {
-    cmd.explain = true;
-    return cmd;
-  }
-
-  return { explain: cmd, verbosity: explain.verbosity };
+  return { explain: command, verbosity: explain.verbosity };
 }
 
 /**

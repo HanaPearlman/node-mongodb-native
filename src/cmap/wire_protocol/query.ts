@@ -48,11 +48,9 @@ export function query(
 
   // If we have explain, we need to rewrite the find command
   // to wrap it in the explain command
-  if (options.explain !== undefined) {
-    const explain = Explain.fromOptions(options);
-    if (explain) {
-      findCmd = decorateWithExplain(findCmd, explain);
-    }
+  const explain = Explain.fromOptions(options);
+  if (explain) {
+    findCmd = decorateWithExplain(findCmd, explain);
   }
 
   // NOTE: This actually modifies the passed in cmd, and our code _depends_ on this
@@ -72,7 +70,7 @@ export function query(
 }
 
 // Typically, a legacy find query is used for wire versions prior to 4. However, for explain with
-// find on wire versions between 3 and 4, we can't use a typical legacy find command.
+// find on wire versions between 3 and 4, we can't use a legacy find command.
 function shouldUseLegacyQuery(server: Server, options: FindOptions): boolean {
   const wireVersion = maxWireVersion(server);
   return wireVersion <= 3 || (wireVersion < 4 && options.explain === undefined);

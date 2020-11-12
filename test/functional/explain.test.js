@@ -459,9 +459,13 @@ describe('Explain', function () {
     })
   });
 
-  it(
-    'should honor boolean explain with find',
-    withClient(function (client, done) {
+  it('should honor boolean explain with find', {
+    metadata: {
+      requires: {
+        mongodb: '>=3.0'
+      }
+    },
+    test: withClient(function (client, done) {
       const db = client.db('shouldHonorBooleanExplainWithFind');
       const collection = db.collection('test');
 
@@ -478,7 +482,7 @@ describe('Explain', function () {
         });
       });
     })
-  );
+  });
 
   it('should honor string explain with find', {
     metadata: {
@@ -555,9 +559,13 @@ describe('Explain', function () {
     })
   });
 
-  it(
-    'should honor boolean explain specified on cursor with find',
-    withClient(function (client, done) {
+  it('should honor boolean explain specified on cursor with find', {
+    metadata: {
+      requires: {
+        mongodb: '>=3.0'
+      }
+    },
+    test: withClient(function (client, done) {
       const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
       const collection = db.collection('test');
 
@@ -573,7 +581,7 @@ describe('Explain', function () {
         });
       });
     })
-  );
+  });
 
   it('should honor string explain specified on cursor with find', {
     metadata: {
@@ -695,7 +703,6 @@ describe('Explain', function () {
             expect(result).to.have.property('stages');
             expect(result.stages).to.have.lengthOf.at.least(1);
             expect(result.stages[0]).to.have.property('$cursor');
-            expect(result.stages[0].$cursor).to.have.property('queryPlanner');
             done();
           });
       });

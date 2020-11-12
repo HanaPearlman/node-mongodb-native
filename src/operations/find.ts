@@ -213,7 +213,7 @@ export class FindOperation extends CommandOperation<FindOptions, Document> {
     }
 
     if (this.explain) {
-      // For now, we need to manually ensure explain is in the options. This will change after cursor refactor.
+      // TODO: For now, we need to manually ensure explain is in the options. This will change after cursor refactor.
       this.options.explain = this.explain.verbosity;
     }
 
