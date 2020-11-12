@@ -145,7 +145,7 @@ export abstract class CommandOperation<
     }
 
     if (this.hasAspect(Aspect.EXPLAINABLE) && this.explain) {
-      cmd = decorateWithExplain(cmd, this.explain);
+      cmd = decorateWithExplain(cmd, this.explain, server);
     }
 
     server.command(
