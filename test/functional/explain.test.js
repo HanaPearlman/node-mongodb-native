@@ -459,13 +459,9 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorBooleanExplainWithFind', {
-    metadata: {
-      requires: {
-        mongodb: '>=3.0'
-      }
-    },
-    test: withClient(function (client, done) {
+  it(
+    'should honor boolean explain with find',
+    withClient(function (client, done) {
       const db = client.db('shouldHonorBooleanExplainWithFind');
       const collection = db.collection('test');
 
@@ -482,9 +478,9 @@ describe('Explain', function () {
         });
       });
     })
-  });
+  );
 
-  it('shouldHonorStringExplainWithFind', {
+  it('should honor string explain with find', {
     metadata: {
       requires: {
         mongodb: '>=3.0'
@@ -510,7 +506,7 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorBooleanExplainWithFindOne', {
+  it('should honor boolean explain with findOne', {
     metadata: {
       requires: {
         mongodb: '>=3.0'
@@ -534,7 +530,7 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorStringExplainWithFindOne', {
+  it('should honor string explain with findOne', {
     metadata: {
       requires: {
         mongodb: '>=3.0'
@@ -559,13 +555,9 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorBooleanExplainSpecifiedOnCursorWithFind', {
-    metadata: {
-      requires: {
-        mongodb: '>=3.0'
-      }
-    },
-    test: withClient(function (client, done) {
+  it(
+    'should honor boolean explain specified on cursor with find',
+    withClient(function (client, done) {
       const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
       const collection = db.collection('test');
 
@@ -573,8 +565,7 @@ describe('Explain', function () {
         expect(err).to.not.exist;
         expect(res).to.exist;
 
-        const cursor = collection.find({ a: 1 });
-        cursor.explain(false, (err, explanation) => {
+        collection.find({ a: 1 }).explain(false, (err, explanation) => {
           expect(err).to.not.exist;
           expect(explanation).to.exist;
           expect(explanation).property('queryPlanner').to.exist;
@@ -582,24 +573,23 @@ describe('Explain', function () {
         });
       });
     })
-  });
+  );
 
-  it('shouldHonorStringExplainSpecifiedOnCursorWithFind', {
+  it('should honor string explain specified on cursor with find', {
     metadata: {
       requires: {
         mongodb: '>=3.0'
       }
     },
     test: withClient(function (client, done) {
-      const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
+      const db = client.db('shouldHonorStringExplainSpecifiedOnCursor');
       const collection = db.collection('test');
-      const cursor = collection.find({ a: 1 });
 
       collection.insertOne({ a: 1 }, (err, res) => {
         expect(err).to.not.exist;
         expect(res).to.exist;
 
-        cursor.explain('allPlansExecution', (err, explanation) => {
+        collection.find({ a: 1 }).explain('allPlansExecution', (err, explanation) => {
           expect(err).to.not.exist;
           expect(explanation).to.exist;
           expect(explanation).property('queryPlanner').to.exist;
@@ -610,7 +600,7 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorLegacyExplainWithFind', {
+  it('should honor legacy explain with find', {
     metadata: {
       requires: {
         mongodb: '<3.0'
@@ -619,13 +609,12 @@ describe('Explain', function () {
     test: withClient(function (client, done) {
       const db = client.db('shouldHonorLegacyExplainWithFind');
       const collection = db.collection('test');
-      const cursor = collection.find({ a: 1 });
 
       collection.insertOne({ a: 1 }, (err, res) => {
         expect(err).to.not.exist;
         expect(res).to.exist;
 
-        cursor.explain((err, result) => {
+        collection.find({ a: 1 }).explain((err, result) => {
           expect(err).to.not.exist;
           expect(result).to.have.property('allPlans');
           done();
@@ -634,13 +623,9 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorBooleanExplainWithAggregate', {
-    metadata: {
-      requires: {
-        mongodb: '>=3.0'
-      }
-    },
-    test: withClient(function (client, done) {
+  it(
+    'should honor boolean explain with aggregate',
+    withClient(function (client, done) {
       const db = client.db('shouldHonorBooleanExplainWithAggregate');
       const collection = db.collection('test');
       collection.insertOne({ a: 1 }, (err, res) => {
@@ -659,9 +644,9 @@ describe('Explain', function () {
           });
       });
     })
-  });
+  );
 
-  it('shouldHonorStringExplainWithAggregate', {
+  it('should honor string explain with aggregate', {
     metadata: {
       requires: {
         mongodb: '>=3.6.0'
@@ -693,13 +678,9 @@ describe('Explain', function () {
     })
   });
 
-  it('shouldHonorBooleanExplainSpecifiedOnCursorWithAggregate', {
-    metadata: {
-      requires: {
-        mongodb: '>=3.0'
-      }
-    },
-    test: withClient(function (client, done) {
+  it(
+    'should honor boolean explain specified on cursor with aggregate',
+    withClient(function (client, done) {
       const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
       const collection = db.collection('test');
 
@@ -707,66 +688,69 @@ describe('Explain', function () {
         expect(err).to.not.exist;
         expect(res).to.exist;
 
-        const cursor = collection.aggregate([{ $project: { a: 1 } }, { $group: { _id: '$a' } }]);
-        cursor.explain(false, (err, result) => {
-          expect(err).to.not.exist;
-          expect(result).to.have.property('stages');
-          expect(result.stages).to.have.lengthOf.at.least(1);
-          expect(result.stages[0]).to.have.property('$cursor');
-          expect(result.stages[0].$cursor).to.have.property('queryPlanner');
-          done();
-        });
+        collection
+          .aggregate([{ $project: { a: 1 } }, { $group: { _id: '$a' } }])
+          .explain(false, (err, result) => {
+            expect(err).to.not.exist;
+            expect(result).to.have.property('stages');
+            expect(result.stages).to.have.lengthOf.at.least(1);
+            expect(result.stages[0]).to.have.property('$cursor');
+            expect(result.stages[0].$cursor).to.have.property('queryPlanner');
+            done();
+          });
       });
     })
-  });
+  );
 
-  it('shouldHonorStringExplainSpecifiedOnCursorWithAggregate', {
+  it('should honor string explain specified on cursor with aggregate', {
     metadata: {
       requires: {
         mongodb: '>=3.6'
       }
     },
     test: withClient(function (client, done) {
-      const db = client.db('shouldHonorBooleanExplainSpecifiedOnCursor');
+      const db = client.db('shouldHonorStringExplainSpecifiedOnCursor');
       const collection = db.collection('test');
-      const cursor = collection.aggregate([{ $project: { a: 1 } }, { $group: { _id: '$a' } }]);
 
       collection.insertOne({ a: 1 }, (err, res) => {
         expect(err).to.not.exist;
         expect(res).to.exist;
 
-        cursor.explain('allPlansExecution', (err, result) => {
-          expect(err).to.not.exist;
-          expect(result).to.exist;
-          expect(result).to.have.property('stages');
-          expect(result.stages).to.have.lengthOf.at.least(1);
-          expect(result.stages[0]).to.have.property('$cursor');
-          expect(result.stages[0].$cursor).to.have.property('queryPlanner');
-          expect(result.stages[0].$cursor).to.have.property('executionStats');
-          done();
-        });
+        collection
+          .aggregate([{ $project: { a: 1 } }, { $group: { _id: '$a' } }])
+          .explain('allPlansExecution', (err, result) => {
+            expect(err).to.not.exist;
+            expect(result).to.exist;
+            expect(result).to.have.property('stages');
+            expect(result.stages).to.have.lengthOf.at.least(1);
+            expect(result.stages[0]).to.have.property('$cursor');
+            expect(result.stages[0].$cursor).to.have.property('queryPlanner');
+            expect(result.stages[0].$cursor).to.have.property('executionStats');
+            done();
+          });
       });
     })
   });
 
   it(
-    'shouldHonorLegacyExplainWithAggregate',
+    'should honor legacy explain with aggregate',
     withClient(function (client, done) {
       const db = client.db('shouldHonorLegacyExplainWithAggregate');
       const collection = db.collection('test');
-      const cursor = collection.aggregate([{ $project: { a: 1 } }, { $group: { _id: '$a' } }]);
 
       collection.insertOne({ a: 1 }, (err, res) => {
         expect(err).to.not.exist;
         expect(res).to.exist;
 
-        cursor.explain((err, result) => {
-          expect(err).to.not.exist;
-          expect(result).to.have.property('stages');
-          expect(result.stages).to.have.lengthOf.at.least(1);
-          expect(result.stages[0]).to.have.property('$cursor');
-          done();
-        });
+        collection
+          .aggregate([{ $project: { a: 1 } }, { $group: { _id: '$a' } }])
+          .explain((err, result) => {
+            expect(err).to.not.exist;
+            expect(result).to.have.property('stages');
+            expect(result.stages).to.have.lengthOf.at.least(1);
+            expect(result.stages[0]).to.have.property('$cursor');
+            done();
+          });
       });
     })
   );
